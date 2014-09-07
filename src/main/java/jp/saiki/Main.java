@@ -1,28 +1,26 @@
 package jp.saiki;
 
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Group;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.*;
+import javafx.application.*;
+import javafx.event.ActionEvent;
+import javafx.scene.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
+import javafx.stage.*;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import javax.imageio.*;
+import javax.swing.JOptionPane;
+import java.awt.AWTException;
+import java.awt.Image;
 import java.awt.MenuItem;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.io.*;
+import java.text.*;
+import java.util.*;
 
 public class Main extends Application {
 
@@ -37,10 +35,7 @@ public class Main extends Application {
     public static void main(String[] args) {
         try {
             Main.tray.init();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage());
-            System.exit(9);
-        } catch (AWTException e) {
+        } catch (IOException | AWTException e) {
             JOptionPane.showMessageDialog(null, e.getMessage());
             System.exit(9);
         }
@@ -61,14 +56,14 @@ public class Main extends Application {
         public void init() throws IOException, AWTException {
             Image image = ImageIO.read(Thread.currentThread().getContextClassLoader().getResourceAsStream("post_it.png"));
             this.icon = new TrayIcon(image);
-            this.icon.addActionListener((ActionEvent e) -> {
+            this.icon.addActionListener((java.awt.event.ActionEvent e) -> {
                 icon.displayMessage("クリック", "クリックされました。", TrayIcon.MessageType.INFO);
             });
             PopupMenu menu = new PopupMenu();
             MenuItem addMenu = new MenuItem("追加");
-            addMenu.addActionListener((ActionEvent e) -> {
+            addMenu.addActionListener((java.awt.event.ActionEvent e) -> {
                 Platform.runLater(() -> {
-                    final Stage stage = new Stage();
+                    final Stage stage = new Stage(StageStyle.TRANSPARENT);
                     Group rootGroup = new Group();
                     Scene scene = new Scene(rootGroup, 200, 200, Color.WHITESMOKE);
                     stage.setScene(scene);
@@ -77,10 +72,18 @@ public class Main extends Application {
                     VBox vbox = new VBox();
                     rootPane.getChildren().add(vbox);
 
-                    AnchorPane labelAnchor = new AnchorPane();
+                    AnchorPane headerAnchor = new AnchorPane();
+                    HBox headerHBox = new HBox();
                     Label label = new Label(sdf.format(new Date()));
-                    labelAnchor.getChildren().add(label);
-                    vbox.getChildren().add(labelAnchor);
+                    headerHBox.getChildren().add(label);
+                    Button closeButton = new Button();
+                    closeButton.setText("x");
+                    closeButton.setOnAction((ActionEvent ev) -> {
+                        stage.close();
+                    });
+                    headerHBox.getChildren().add(closeButton);
+                    headerAnchor.getChildren().add(headerHBox);
+                    vbox.getChildren().add(headerAnchor);
 
                     AnchorPane textAnchor = new AnchorPane();
                     TextArea textArea = new TextArea();
@@ -94,7 +97,7 @@ public class Main extends Application {
             });
             menu.add(addMenu);
             MenuItem exitMenu = new MenuItem("終了");
-            exitMenu.addActionListener((ActionEvent e) -> {
+            exitMenu.addActionListener((java.awt.event.ActionEvent e) -> {
                System.exit(0);
             });
             menu.add(exitMenu);
