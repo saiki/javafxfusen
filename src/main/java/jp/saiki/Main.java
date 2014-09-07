@@ -2,6 +2,7 @@ package jp.saiki;
 
 import javafx.application.*;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -27,6 +28,8 @@ public class Main extends Application {
     private static final Tray tray = new Tray();
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+    private static final FXMLLoader LOADER = new FXMLLoader(Main.class.getResource("Fusen.fxml"));
 
     @Override
     public void start(final Stage primaryStage) throws Exception{
@@ -64,35 +67,13 @@ public class Main extends Application {
             addMenu.addActionListener((java.awt.event.ActionEvent e) -> {
                 Platform.runLater(() -> {
                     final Stage stage = new Stage(StageStyle.TRANSPARENT);
-                    Group rootGroup = new Group();
-                    Scene scene = new Scene(rootGroup, 200, 200, Color.WHITESMOKE);
-                    stage.setScene(scene);
-
-                    AnchorPane rootPane = new AnchorPane();
-                    VBox vbox = new VBox();
-                    rootPane.getChildren().add(vbox);
-
-                    AnchorPane headerAnchor = new AnchorPane();
-                    HBox headerHBox = new HBox();
-                    Label label = new Label(sdf.format(new Date()));
-                    headerHBox.getChildren().add(label);
-                    Button closeButton = new Button();
-                    closeButton.setText("x");
-                    closeButton.setOnAction((ActionEvent ev) -> {
-                        stage.close();
-                    });
-                    headerHBox.getChildren().add(closeButton);
-                    headerAnchor.getChildren().add(headerHBox);
-                    vbox.getChildren().add(headerAnchor);
-
-                    AnchorPane textAnchor = new AnchorPane();
-                    TextArea textArea = new TextArea();
-                    textAnchor.getChildren().add(textArea);
-                    vbox.getChildren().add(textAnchor);
-
+                    Group rootGroup = null;
+                    try {
+                        rootGroup = LOADER.load();
+                    } catch (IOException e1) {
+                        System.exit(9);
+                    }
                     stage.show();
-
-                    rootGroup.getChildren().add(rootPane);
                 });
             });
             menu.add(addMenu);
