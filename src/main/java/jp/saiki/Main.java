@@ -1,36 +1,38 @@
 package jp.saiki;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.*;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.MenuItem;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Main extends Application {
 
     private static final Tray tray = new Tray();
 
-
-
-    static {
-
-    }
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     @Override
     public void start(final Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
-        primaryStage.setTitle("Hello World");
-        primaryStage.setScene(new Scene(root, 300, 275));
-        primaryStage.show();
     }
-
 
     public static void main(String[] args) {
         try {
@@ -65,7 +67,30 @@ public class Main extends Application {
             PopupMenu menu = new PopupMenu();
             MenuItem addMenu = new MenuItem("追加");
             addMenu.addActionListener((ActionEvent e) -> {
-                // TODO 追加処理
+                Platform.runLater(() -> {
+                    final Stage stage = new Stage();
+                    Group rootGroup = new Group();
+                    Scene scene = new Scene(rootGroup, 200, 200, Color.WHITESMOKE);
+                    stage.setScene(scene);
+
+                    AnchorPane rootPane = new AnchorPane();
+                    VBox vbox = new VBox();
+                    rootPane.getChildren().add(vbox);
+
+                    AnchorPane labelAnchor = new AnchorPane();
+                    Label label = new Label(sdf.format(new Date()));
+                    labelAnchor.getChildren().add(label);
+                    vbox.getChildren().add(labelAnchor);
+
+                    AnchorPane textAnchor = new AnchorPane();
+                    TextArea textArea = new TextArea();
+                    textAnchor.getChildren().add(textArea);
+                    vbox.getChildren().add(textAnchor);
+
+                    stage.show();
+
+                    rootGroup.getChildren().add(rootPane);
+                });
             });
             menu.add(addMenu);
             MenuItem exitMenu = new MenuItem("終了");
