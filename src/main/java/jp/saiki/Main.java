@@ -1,5 +1,6 @@
 package jp.saiki;
 
+import com.sun.glass.events.MouseEvent;
 import javafx.application.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +21,7 @@ import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.io.*;
+import java.net.URL;
 import java.text.*;
 import java.util.*;
 
@@ -29,7 +31,12 @@ public class Main extends Application {
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
-    private static final FXMLLoader LOADER = new FXMLLoader(Main.class.getResource("Fusen.fxml"));
+    private static final URL FUSEN_FXML = Main.class.getResource("Fusen.fxml");
+
+    private static double initX;
+
+    private static double initY;
+
 
     @Override
     public void start(final Stage primaryStage) throws Exception{
@@ -67,13 +74,36 @@ public class Main extends Application {
             addMenu.addActionListener((java.awt.event.ActionEvent e) -> {
                 Platform.runLater(() -> {
                     final Stage stage = new Stage(StageStyle.TRANSPARENT);
-                    Group rootGroup = null;
+                    Group rootGroup = new Group();
+                    //when mouse button is pressed, save the initial position of screen
+                    rootGroup.setOnMousePressed((javafx.scene.input.MouseEvent me) -> {
+                        initX = me.getScreenX() - stage.getX();
+                        initY = me.getScreenY() - stage.getY();
+                    });
+
+                    //when screen is dragged, translate it accordingly
+                    rootGroup.setOnMouseDragged((javafx.scene.input.MouseEvent me) -> {
+                        stage.setX(me.getScreenX() - initX);
+                        stage.setY(me.getScreenY() - initY);
+                    });
+
+                    Scene scene = new Scene(rootGroup, 200, 200, Color.TRANSPARENT);
+                    stage.setScene(scene);
+                    stage.centerOnScreen();
                     try {
-                        rootGroup = LOADER.load();
+                        FXMLLoader loader = new FXMLLoader(FUSEN_FXML);
+                        AnchorPane anchorPane = loader.load();
+                        FusenController controller = loader.getController();
+                        controller.setStage(stage);
+                        anchorPane.setPrefWidth(200);
+                        anchorPane.setPrefHeight(200);
+                        rootGroup.getChildren().add(anchorPane);
                     } catch (IOException e1) {
+                        System.out.println(e1.getMessage());
+                        e1.printStackTrace();
                         System.exit(9);
                     }
-                    stage.show();
+                    stage.showAndWait();
                 });
             });
             menu.add(addMenu);
